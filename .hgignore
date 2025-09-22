@@ -1,5 +1,0 @@
-syntax: glob
-bin/*
-obj/*
-*.suo
-*.bak
