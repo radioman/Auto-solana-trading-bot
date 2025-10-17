@@ -12,7 +12,9 @@
 [Features](#-features) • [Installation](#-installation) • [Configuration](#-configuration) • [Usage](#-usage) • [API](#-api) • [Contributing](#-contributing)
 
 </div>
-<img width="756" height="321" alt="2025-09-10_13-23-31" src="https://github.com/user-attachments/assets/846541a9-41cb-4355-a0bb-ce1b3359e195" />
+<div align="center">
+  <img width="756" height="321" alt="2025-09-10_13-23-31" src="https://github.com/user-attachments/assets/846541a9-41cb-4355-a0bb-ce1b3359e195" />
+</div>
 
 ---
 
