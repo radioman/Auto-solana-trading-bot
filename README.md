@@ -1,13 +1,13 @@
-# 🚀 Solana PumpPortal Trading Bot
+# 🚀 Solana Auto Trading Bot
 
 <div align="center">
 
 ![Solana](https://img.shields.io/badge/Solana-9945FF?style=for-the-badge&logo=solana&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white)
 ![WebSocket](https://img.shields.io/badge/WebSocket-010101?style=for-the-badge&logo=socket.io&logoColor=white)
+![Helius](https://img.shields.io/badge/Helius-FF6B35?style=for-the-badge&logo=helius&logoColor=white)
 
-**Advanced automated trading bot for Solana tokens using PumpPortal WebSocket feeds**
+**Advanced automated trading bot for Solana tokens using Helius WebSocket feeds with PumpFun and Raydium support**
 
 [Features](#-features) • [Installation](#-installation) • [Configuration](#-configuration) • [Usage](#-usage) • [API](#-api) • [Contributing](#-contributing)
 
@@ -18,29 +18,38 @@
 ## ✨ Features
 
 ### 🔥 Core Trading Features
-- **Real-time Token Detection**: Monitors PumpPortal WebSocket for new token launches
-- **Automated Trading**: Executes buy/sell orders based on market conditions
+- **Real-time Token Detection**: Monitors Helius WebSocket for new token launches and trading opportunities
+- **Multi-DEX Support**: Supports both PumpFun and Raydium DEX for maximum trading flexibility
+- **Automated Trading**: Executes buy/sell orders based on market conditions and strategies
 - **Risk Management**: Built-in stop-loss and take-profit mechanisms
 - **Position Tracking**: Monitors active positions and PnL in real-time
 - **Multi-token Support**: Handles multiple concurrent token positions
+
+### 🚀 Advanced Features
+- **Nozomi Integration**: MEV protection and transaction prioritization through Nozomi
+- **Zero Slot Support**: Ultra-fast transaction execution with Zero Slot integration
+- **Telegram Notifications**: Real-time alerts for trades, errors, and status updates
+- **Jito Integration**: MEV protection and transaction bundling support
 
 ### 🛡️ Safety & Security
 - **Slippage Protection**: Configurable slippage tolerance for trades
 - **Liquidity Checks**: Validates minimum liquidity before trading
 - **Error Handling**: Comprehensive error handling and recovery
 - **Rate Limiting**: Built-in rate limiting to prevent API abuse
+- **Transaction Retry Logic**: Automatic retry with exponential backoff
 
 ### 📊 Monitoring & Analytics
-- **Real-time Logging**: Detailed logging with configurable levels
-- **Telegram Notifications**: Get notified of trades, errors, and status updates
+- **Real-time Logging**: Detailed logging with configurable levels using tracing
 - **Portfolio Tracking**: Track total PnL and trade statistics
 - **Performance Metrics**: Monitor success rates and profitability
+- **Transaction Monitoring**: Real-time transaction status and confirmation tracking
 
 ### 🔧 Technical Features
-- **TypeScript**: Fully typed for better development experience
+- **Rust Performance**: High-performance, memory-safe implementation
 - **Modular Architecture**: Clean, maintainable code structure
 - **WebSocket Reconnection**: Automatic reconnection with exponential backoff
 - **Transaction Optimization**: Optimized for Solana's transaction model
+- **Async/Await**: Full async support for concurrent operations
 
 ---
 
@@ -48,9 +57,10 @@
 
 ### Prerequisites
 
-- **Node.js** (v18 or higher)
-- **npm** or **yarn**
+- **Rust** (latest stable version)
+- **Cargo** (comes with Rust)
 - **Solana Wallet** with SOL for trading
+- **Helius API Key** (for WebSocket feeds)
 - **Telegram Bot** (optional, for notifications)
 
 ### Quick Start
@@ -61,28 +71,33 @@
    cd Auto-solana-trading-bot
    ```
 
-2. **Install dependencies**
+2. **Install Rust** (if not already installed)
    ```bash
-   npm install
-   # or
-   yarn install
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   source ~/.cargo/env
    ```
 
 3. **Set up environment variables**
+   Create a `.env` file in the project root:
    ```bash
-   cp env.example .env
+   touch .env
    ```
 
 4. **Configure your environment**
    Edit `.env` file with your settings:
    ```env
    # Required
-   PRIVATE_KEY=your_base58_private_key_here
+   SOL_PUBKEY=your_solana_public_key_here
+   RPC_ENDPOINT=your_helius_rpc_endpoint
+   RPC_WEBSOCKET_ENDPOINT=your_helius_websocket_endpoint
+   TARGET_PUBKEY=target_wallet_to_monitor
+   JUP_PUBKEY=jupiter_aggregator_pubkey
    
    # Optional
-   RPC_ENDPOINT=https://api.mainnet-beta.solana.com
-   BUY_AMOUNT_SOL=0.01
-   MAX_CONCURRENT_TRADES=5
+   NOZOMI_URL=your_nozomi_endpoint
+   NOZOMI_TIP_VALUE=0.001
+   ZERO_SLOT_URL=your_zeroslot_endpoint
+   ZERO_SLOT_TIP_VALUE=0.001
    TELEGRAM_BOT_TOKEN=your_telegram_bot_token
    TELEGRAM_CHAT_ID=your_telegram_chat_id
    ```
@@ -90,11 +105,11 @@
 5. **Build and run**
    ```bash
    # Development
-   npm run dev
+   cargo run
    
-   # Production
-   npm run build
-   npm start
+   # Release build
+   cargo build --release
+   ./target/release/trading-bot
    ```
 
 ---
@@ -105,27 +120,36 @@
 
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
-| `PRIVATE_KEY` | Base58 encoded Solana private key | - | ✅ |
-| `RPC_ENDPOINT` | Solana RPC endpoint | `https://api.mainnet-beta.solana.com` | ❌ |
-| `COMMITMENT_LEVEL` | Transaction commitment level | `confirmed` | ❌ |
-| `BUY_AMOUNT_SOL` | SOL amount per trade | `0.01` | ❌ |
-| `MAX_CONCURRENT_TRADES` | Maximum concurrent positions | `5` | ❌ |
-| `STOP_LOSS_PERCENTAGE` | Stop loss percentage | `20` | ❌ |
-| `TAKE_PROFIT_PERCENTAGE` | Take profit percentage | `50` | ❌ |
+| `SOL_PUBKEY` | Your Solana public key | - | ✅ |
+| `RPC_ENDPOINT` | Helius RPC endpoint | - | ✅ |
+| `RPC_WEBSOCKET_ENDPOINT` | Helius WebSocket endpoint | - | ✅ |
+| `TARGET_PUBKEY` | Target wallet to monitor | - | ✅ |
+| `JUP_PUBKEY` | Jupiter aggregator public key | - | ✅ |
+| `NOZOMI_URL` | Nozomi MEV protection endpoint | - | ❌ |
+| `NOZOMI_TIP_VALUE` | Nozomi tip amount in SOL | `0.001` | ❌ |
+| `ZERO_SLOT_URL` | Zero Slot endpoint | - | ❌ |
+| `ZERO_SLOT_TIP_VALUE` | Zero Slot tip amount in SOL | `0.001` | ❌ |
 | `TELEGRAM_BOT_TOKEN` | Telegram bot token | - | ❌ |
 | `TELEGRAM_CHAT_ID` | Telegram chat ID | - | ❌ |
-| `SOLANA_VIBE_STATION_API_KEY` | API key for token metadata | - | ❌ |
 
 ### Trading Configuration
 
-You can modify trading parameters in `src/constants/index.ts`:
+You can modify trading parameters in `src/common/constants.rs`:
 
-```typescript
-export const BUY_AMOUNT_SOL = 0.01;           // SOL per trade
-export const MAX_CONCURRENT_TRADES = 5;       // Max positions
-export const STOP_LOSS_PERCENTAGE = 20;       // Stop loss %
-export const TAKE_PROFIT_PERCENTAGE = 50;     // Take profit %
+```rust
+pub const BUY_AMOUNT_SOL: f64 = 0.01;           // SOL per trade
+pub const MAX_CONCURRENT_TRADES: usize = 5;     // Max positions
+pub const STOP_LOSS_PERCENTAGE: f64 = 20.0;     // Stop loss %
+pub const TAKE_PROFIT_PERCENTAGE: f64 = 50.0;   // Take profit %
 ```
+
+### DEX Configuration
+
+The bot supports both PumpFun and Raydium DEX:
+
+- **PumpFun**: For new token launches and meme coins
+- **Raydium**: For established tokens with liquidity pools
+- **Automatic Detection**: Bot automatically detects which DEX to use based on token characteristics
 
 ---
 
@@ -134,79 +158,116 @@ export const TAKE_PROFIT_PERCENTAGE = 50;     // Take profit %
 ### Basic Usage
 
 ```bash
-# Start the bot
-npm run dev
+# Start the bot in development mode
+cargo run
 
-# Or build and run
-npm run build
-npm start
+# Build and run in release mode
+cargo build --release
+./target/release/trading-bot
 ```
 
 ### Advanced Usage
 
-```typescript
-import { SolanaTradingBot } from './src/index';
+The bot runs as a single executable that:
 
-const bot = new SolanaTradingBot();
+1. **Connects to Helius WebSocket** for real-time transaction monitoring
+2. **Monitors target wallet** for trading opportunities
+3. **Executes trades** on PumpFun or Raydium based on detected patterns
+4. **Sends notifications** via Telegram (if configured)
 
-// Start trading
-await bot.start();
+### Command Line Options
 
-// Get current status
-const status = bot.getStatus();
-console.log(status);
+```bash
+# Run with specific configuration
+cargo run -- --config custom_config.toml
 
-// Stop trading
-await bot.stop();
+# Run with debug logging
+RUST_LOG=debug cargo run
+
+# Run with specific log level
+RUST_LOG=info cargo run
 ```
 
 ### Monitoring
 
 The bot provides real-time monitoring through:
 
-1. **Console Logs**: Detailed logging with timestamps
-2. **Telegram Notifications**: Real-time alerts and updates
-3. **Status Endpoint**: Programmatic status checking
+1. **Console Logs**: Detailed logging with timestamps using the `tracing` crate
+2. **Telegram Notifications**: Real-time alerts for trades, errors, and status updates
+3. **Transaction Tracking**: Real-time transaction status and confirmation monitoring
+4. **Performance Metrics**: Built-in performance monitoring and statistics
+
+### Features in Action
+
+- **Helius WebSocket**: Monitors real-time transaction feeds for trading opportunities
+- **PumpFun Integration**: Automatically trades new token launches on PumpFun
+- **Raydium Integration**: Executes trades on Raydium for established tokens
+- **Nozomi Protection**: Uses Nozomi for MEV protection when available
+- **Zero Slot Speed**: Leverages Zero Slot for ultra-fast transaction execution
+- **Telegram Alerts**: Sends notifications for successful trades, errors, and important events
 
 ---
 
 ## 📊 API Reference
 
-### TradingBot Class
+### Core Modules
 
-#### Methods
+#### Trading Engine (`src/engine/`)
 
-- `start()`: Start the trading bot
-- `stop()`: Stop the trading bot
-- `getState()`: Get current bot state
-- `getConfig()`: Get current configuration
-- `updateConfig(config)`: Update trading configuration
+- **`strategy.rs`**: Contains trading strategies and swap logic
+- **`sniper.rs`**: Implements sniper trading functionality
+- **`swap.rs`**: Handles swap execution for both PumpFun and Raydium
 
-#### State Object
+#### DEX Integrations (`src/dex/`)
 
-```typescript
-interface BotState {
-  isRunning: boolean;
-  activeTrades: Map<string, TokenPosition>;
-  totalPnl: number;
-  totalTrades: number;
-  successfulTrades: number;
-  failedTrades: number;
-}
+- **`pumpfun.rs`**: PumpFun DEX integration and trading logic
+- **`raydium.rs`**: Raydium DEX integration and AMM operations
+
+#### Services (`src/services/`)
+
+- **`nozomi.rs`**: Nozomi MEV protection service
+- **`zeroslot.rs`**: Zero Slot ultra-fast transaction service
+- **`telegram.rs`**: Telegram notification service
+- **`jito.rs`**: Jito MEV protection and bundling
+- **`rpc_client.rs`**: RPC client utilities and connection management
+
+### Key Functions
+
+#### Trading Functions
+
+```rust
+// Raydium swap execution
+pub async fn raydium_swap(
+    state: AppState,
+    amount_in: f64,
+    swap_direction: &str,
+    in_type: &str,
+    slippage: u64,
+    use_jito: bool,
+    amm_pool_id: Pubkey,
+    pool_state: AmmInfo,
+) -> Result<Vec<String>>
+
+// PumpFun swap execution
+pub async fn pump_swap(
+    state: AppState,
+    amount_in: f64,
+    // ... parameters
+) -> Result<Vec<String>>
 ```
 
-### PumpPortalService Class
+#### Service Functions
 
-#### Methods
+```rust
+// Nozomi tip account selection
+pub fn get_tip_account() -> Result<Pubkey>
 
-- `connect()`: Connect to PumpPortal WebSocket
-- `disconnect()`: Disconnect from WebSocket
-- `isWebSocketConnected()`: Check connection status
-
-#### Events
-
-- `trade`: Emitted when a new trade is detected
-- `error`: Emitted when an error occurs
+// Zero Slot transaction sending
+pub async fn send_transaction(
+    &self,
+    transaction: &Transaction,
+) -> Result<Signature, ClientError>
+```
 
 ---
 
@@ -216,41 +277,64 @@ interface BotState {
 
 ```
 src/
-├── constants/          # Configuration constants
+├── common/             # Common utilities and configuration
+│   ├── cache.rs       # Caching utilities
+│   ├── constants.rs   # Configuration constants
+│   ├── logger.rs      # Logging utilities
+│   ├── mod.rs         # Module declarations
+│   └── utils.rs       # Helper functions
+├── core/               # Core trading logic
+│   ├── mod.rs         # Module declarations
+│   ├── token.rs       # Token handling
+│   └── tx.rs          # Transaction utilities
+├── dex/                # DEX integrations
+│   ├── mod.rs         # Module declarations
+│   ├── pumpfun.rs     # PumpFun DEX integration
+│   └── raydium.rs     # Raydium DEX integration
+├── engine/             # Trading engine
+│   ├── mod.rs         # Module declarations
+│   ├── sniper.rs      # Sniper trading logic
+│   ├── strategy.rs    # Trading strategies
+│   └── swap.rs        # Swap execution logic
 ├── services/           # External service integrations
-│   ├── pumpportal.ts  # PumpPortal WebSocket client
-│   ├── telegram.ts    # Telegram notification service
-│   └── tokenService.ts # Token metadata service
-├── trading/            # Core trading logic
-│   └── tradingBot.ts  # Main trading bot class
-├── types/              # TypeScript type definitions
-├── utils/              # Utility functions
-│   ├── helpers.ts     # Helper functions
-│   └── logger.ts      # Logging utility
-└── index.ts           # Main entry point
+│   ├── bloxroute.rs   # BloxRoute integration
+│   ├── jito.rs        # Jito MEV protection
+│   ├── mod.rs         # Module declarations
+│   ├── nozomi.rs      # Nozomi MEV protection
+│   ├── rpc_client.rs  # RPC client utilities
+│   ├── telegram.rs    # Telegram notifications
+│   └── zeroslot.rs    # Zero Slot integration
+├── lib.rs              # Library entry point
+└── main.rs             # Main executable entry point
 ```
 
 ### Building
 
 ```bash
-# Build TypeScript
-npm run build
+# Build in debug mode
+cargo build
 
-# Watch mode
-npm run watch
+# Build in release mode
+cargo build --release
 
-# Clean build
-npm run clean
+# Clean build artifacts
+cargo clean
+
+# Check code without building
+cargo check
 ```
 
 ### Testing
 
 ```bash
-# Run tests (when implemented)
-npm test
+# Run all tests
+cargo test
 
-# Run with coverage
-npm run test:coverage
+# Run tests with output
+cargo test -- --nocapture
+
+# Run specific test
+cargo test test_name
 ```
 
 ---
